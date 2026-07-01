@@ -1,0 +1,4 @@
+# OS / OneDrive が生成する不要ファイル
+Thumbs.db
+desktop.ini
+.DS_Store

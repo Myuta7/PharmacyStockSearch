@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>棚版検索システム</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>棚版検索システム</h1>
+    <p id="status" class="status">在庫データを読み込み中…</p>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <p class="hint">医薬品名を入力すると候補が表示されます。クリックで選ぶと右に棚番が出ます。</p>
+      <button id="clearBtn" type="button" class="secondary">すべてクリア</button>
+    </div>
+
+    <!-- 10行：各行＝［入力＋サジェスト］＋［棚番表示］ -->
+    <div id="rows" class="rows"></div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
