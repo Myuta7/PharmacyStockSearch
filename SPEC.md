@@ -4,7 +4,7 @@
 
 - 公開URL: https://myuta7.github.io/PharmacyStockSearch/
 - リポジトリ: https://github.com/Myuta7/PharmacyStockSearch
-- バージョン: 1.0（2026-07-01 時点）
+- バージョン: 1.1（2026-07-02 時点／在庫データ 2026-07 版へ更新・複数棚番の全件表示・レイアウト改良）
 
 ---
 
@@ -77,8 +77,11 @@
 
 ### 2.5 レスポンシブ（スマホ対応）
 
-- 画面幅 **640px 以下** で、ヘッダーや余白を縮小し、棚番表示エリアの幅を狭めて
-  「入力欄＋棚番」の横並びを維持する。
+- 画面幅 **641px 以上（PC）**：入力欄の**右**に棚番表示エリアを横並び。
+- 画面幅 **640px 以下（スマホ）**：横並びをやめ、棚番表示エリアを**入力欄の下の行**へ回す
+  （全幅を使えるので、複数棚番も折り返して見切れず表示できる）。
+- 棚番が複数ある医薬品は、PC・スマホどちらでも `A / B / C` のように**全件**表示する
+  （エリア内で折り返し）。
 
 ---
 
@@ -141,27 +144,38 @@ function normalize(str) {
 ### 4.2 CSV フォーマット
 
 - 1行目はヘッダー（読み飛ばす）。
-- 区切りはカンマ。フィールド内にカンマ・引用符は**無い**前提の単純パース。
-- 行数: 1625 行（ヘッダー含む）。
+- 区切りはカンマ。**各フィールドはダブルクォート `"…"` で囲まれる**。
+  フィールド内のカンマ（例 `舌下錠5,000JAU`）はクォート内では区切りとして扱わない。
+  連続する `""` はエスケープされたダブルクォート 1 文字として解釈する。
+- 行数: 1729 行（ヘッダー含む／データ 1728 件）。※2026-07 版
 
 | 列 | 内容 | 使用 |
 |----|------|------|
 | 1 | 薬品名（全角カナ・全角数字を含む） | 検索・表示に使用 |
-| 2 | 内 / 外（内服・外用の区分） | 現状は未使用 |
-| 3〜6 | 棚番1〜4（空欄あり・複数あり） | 空でないものを ` / ` 連結で表示 |
+| 2〜8 | 棚番1〜棚番7（空欄あり・複数あり） | 空でないものを ` / ` 連結で表示 |
 
 - 棚番がすべて空の薬品は「（棚番未登録）」と表示する。
+- 旧版（〜2026-06）は 2 列目が「内/外」区分・棚番は 4 列・クォート無しだったが、
+  2026-07 版で「内/外」列が廃止され、棚番が最大 7 列・全フィールドがクォート付きに変更された。
 
 ### 4.3 データ更新の注意
 
-- 元データは Shift-JIS の `StockData.csv`。更新した場合は **UTF-8版への再変換**が必要。
-  - 変換例（PowerShell）:
+- 元データは Shift-JIS で受領する（例：`StockData2026_07.csv`）。更新時は
+  **UTF-8（BOMなし）版 `StockData_utf8.csv` への再変換**と、Shift-JIS フォールバック
+  `StockData.csv` の差し替えを行う。
+  - 変換例（PowerShell。`$src` に受領した Shift-JIS ファイル名を指定）:
     ```powershell
+    $src  = ".\StockData2026_07.csv"          # 受領した Shift-JIS 版
     $sjis = [System.Text.Encoding]::GetEncoding(932)
-    $bytes = [System.IO.File]::ReadAllBytes(".\StockData.csv")
-    $text = $sjis.GetString($bytes)
+    $bytes = [System.IO.File]::ReadAllBytes($src)
+    $text  = $sjis.GetString($bytes)
+    # 1) アプリが優先読込する UTF-8（BOMなし）版
     [System.IO.File]::WriteAllText(".\StockData_utf8.csv", $text, (New-Object System.Text.UTF8Encoding($false)))
+    # 2) Shift-JIS フォールバックも同じ新データへ同期
+    [System.IO.File]::WriteAllBytes(".\StockData.csv", $bytes)
     ```
+- CSV の列構成やクォート仕様が変わった場合は `script.js` の `parseCsv()` /
+  `parseCsvLine()` の見直しも必要（2026-07 版で「内/外」列廃止・棚番7列・クォート付きへ対応済み）。
 
 ---
 
@@ -184,7 +198,8 @@ function normalize(str) {
 |------|------|
 | `normalize()` | 文字列正規化（NFKC＋小文字化＋カナ→かな） |
 | `loadStock()` | CSV取得（UTF-8優先／Shift-JISフォールバック） |
-| `parseCsv()` | CSVを解析して `stockData[]` を構築 |
+| `parseCsvLine()` | 1行をクォート対応で列に分解（フィールド内カンマ・`""`エスケープに対応） |
+| `parseCsv()` | CSVを解析して `stockData[]` を構築（薬品名＋棚番1〜7） |
 | `search()` | 検索語のAND部分一致で薬品を抽出 |
 | `buildRows()` | 10行の入力欄＋棚番エリアを生成 |
 | `updateSuggest()` | 入力に応じて候補ドロップダウンを更新 |

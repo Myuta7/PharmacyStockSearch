@@ -162,9 +162,9 @@ main {
   color: #b00020;
 }
 
-/* 右：棚番表示エリア */
+/* 右：棚番表示エリア（複数棚番は折り返して全件表示する） */
 .shelf-area {
-  flex: 0 0 170px;
+  flex: 0 0 200px;
   min-height: 40px;
   display: flex;
   align-items: center;
@@ -176,9 +176,10 @@ main {
   color: #b8460e;
   font-weight: bold;
   font-size: 1.15rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* 未選択（棚番なし）の状態 */
@@ -211,13 +212,19 @@ main {
     align-items: stretch;
   }
 
+  /* スマホでは横並びをやめ、棚番エリアを入力欄の下の行へ回す。
+     全幅を使えるので、複数棚番も折り返して見切れずに表示できる。 */
   .row {
-    gap: 8px;
+    flex-direction: column;
+    gap: 6px;
   }
 
-  /* 棚番エリアを狭めて横並びを維持 */
   .shelf-area {
-    flex: 0 0 96px;
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 36px;
+    justify-content: flex-start;
+    text-align: left;
     font-size: 1.05rem;
   }
 }

@@ -57,7 +57,45 @@ async function loadStock() {
   parseCsv(text);
 }
 
-/* 単純な CSV パーサ（このデータはフィールド内カンマ・引用符が無い前提） */
+/* 1 行分を列に分解する CSV パーサ。
+   フィールドはダブルクォートで囲まれている場合があり（例 "舌下錠2,000JAU"）、
+   その中のカンマは区切りとして扱わない。連続する "" はエスケープされた
+   ダブルクォート 1 文字として扱う。クォート無しのフィールドもそのまま読む。 */
+function parseCsvLine(line) {
+  const cols = [];
+  let field = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (line[i + 1] === '"') {
+          field += '"'; // エスケープされた "
+          i++;
+        } else {
+          inQuotes = false; // クォート終了
+        }
+      } else {
+        field += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ",") {
+        cols.push(field);
+        field = "";
+      } else {
+        field += ch;
+      }
+    }
+  }
+  cols.push(field);
+  return cols;
+}
+
+/* CSV を解析して stockData を構築。
+   列構成：1 列目＝薬品名、2 列目以降＝棚番（棚番1〜棚番7、空欄あり）。 */
 function parseCsv(text) {
   const lines = text.split(/\r\n|\n|\r/);
   stockData = [];
@@ -67,13 +105,13 @@ function parseCsv(text) {
     const line = lines[i];
     if (line.trim() === "") continue;
 
-    const cols = line.split(",");
+    const cols = parseCsvLine(line);
     const name = (cols[0] || "").trim();
     if (name === "") continue;
 
-    // 3〜6 列目（index 2〜5）が棚番。空でないものだけ集める。
+    // 2 列目以降（index 1〜）が棚番。空でないものだけ集める。
     const shelves = [];
-    for (let c = 2; c <= 5; c++) {
+    for (let c = 1; c < cols.length; c++) {
       const v = (cols[c] || "").trim();
       if (v !== "") shelves.push(v);
     }
