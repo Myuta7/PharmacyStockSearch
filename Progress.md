@@ -5,7 +5,7 @@
 - リポジトリ: https://github.com/Myuta7/PharmacyStockSearch
 - 公開URL: https://myuta7.github.io/PharmacyStockSearch/
 
-最終更新: 2026-07-02（在庫データを 2026-07 版へ更新／クォート付きCSV・棚番7列・「内/外」列廃止に対応／複数棚番を全件表示／棚番エリアをスマホで入力欄の下に回すレスポンシブへ改良）
+最終更新: 2026-07-02（在庫データを 2026-07 版へ更新／クォート付きCSV・棚番7列・「内/外」列廃止に対応／複数棚番を全件表示／レスポンシブ改良／サジェストを薬品名のみ表示／専用スキル2種を作成）
 
 ## 0. 2026-07-02 の変更点（在庫データ更新・挙動改良）
 
@@ -23,6 +23,15 @@
   折り返し表示（`white-space:normal` + `overflow-wrap:anywhere`）へ変更。
 - **レイアウト（レスポンシブ）**：PC（641px以上）は従来通り入力欄の右に棚番を横並び、
   スマホ（640px以下）では横並びをやめ**入力欄の下の行**へ回して全幅表示。
+  さらにスマホでは**入力欄も画面横いっぱい**に（`.row` を `align-items:stretch`、
+  `.input-wrap` を `width:100%`）。
+- **サジェストは薬品名のみ表示**：候補ドロップダウンから棚番の併記を廃止（`s-shelf` を削除）。
+  棚番は候補を確定した後に棚番エリアへ表示する。
+- **専用スキルを作成**（ユーザーレベル `~/.claude/skills/`。このリポジトリには含めない）：
+  - `pharmacy-shelf-update` … 新しい在庫CSVでの更新用（Shift-JIS→UTF-8変換・`StockData.csv`同期・
+    フォーマット変化への追従・doc更新・commit/push の手順）。
+  - `pharmacy-shelf-create` … 新フォルダに本システム一式を作成用（テンプレ `index.html`/`style.css`/
+    `script.js`/`serve.ps1` を `assets/` に同梱。CSV取込・doc作成・git初期化・任意でGitHub Pages公開）。
 
 ---
 
