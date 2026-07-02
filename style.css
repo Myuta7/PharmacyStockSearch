@@ -150,13 +150,6 @@ main {
   flex: 1 1 auto;
 }
 
-.s-shelf {
-  flex: 0 0 auto;
-  font-weight: bold;
-  color: #b8460e;
-  white-space: nowrap;
-}
-
 .suggest-empty {
   padding: 8px 11px;
   color: #b00020;

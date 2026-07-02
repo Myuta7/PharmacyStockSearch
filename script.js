@@ -227,16 +227,12 @@ function updateSuggest(input, suggest, shelf) {
     li.className = "suggest-item";
     li.__item = item; // 選択時の参照用
 
+    // サジェストには医薬品名のみ表示（棚番は確定後に右／下の棚番エリアへ）
     const nameEl = document.createElement("span");
     nameEl.className = "s-name";
     nameEl.textContent = item.name;
 
-    const shelfEl = document.createElement("span");
-    shelfEl.className = "s-shelf";
-    shelfEl.textContent = shelvesText(item.shelves);
-
     li.appendChild(nameEl);
-    li.appendChild(shelfEl);
 
     // mousedown＋preventDefault で blur より先に選択を確定させる
     li.addEventListener("mousedown", (e) => {
