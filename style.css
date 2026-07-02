@@ -206,10 +206,16 @@ main {
   }
 
   /* スマホでは横並びをやめ、棚番エリアを入力欄の下の行へ回す。
-     全幅を使えるので、複数棚番も折り返して見切れずに表示できる。 */
+     全幅を使えるので、複数棚番も折り返して見切れずに表示できる。
+     入力欄・棚番エリアともに画面横いっぱいに広げる（stretch）。 */
   .row {
     flex-direction: column;
+    align-items: stretch;
     gap: 6px;
+  }
+
+  .input-wrap {
+    width: 100%;
   }
 
   .shelf-area {
